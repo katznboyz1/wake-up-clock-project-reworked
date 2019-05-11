@@ -150,10 +150,11 @@ while (running):
             brightness -= 100
             if (brightness < 100):
                 brightness = 100
+    brightnessPercentage = int(((brightness - 100) / 1023) * 100)
     
     #blit the text to the screen
     timeText = text(manifestContents['clock-data']['font-path'], int(screenSize[1] / 2), formatTimeString(manifestContents['clock-data']['time-date-format']), manifestContents['clock-data']['fg-fill-color-top'])
-    footerText = text(manifestContents['clock-data']['font-path'], int(screenSize[1] / 4), str(brightness), manifestContents['clock-data']['fg-fill-color-bottom'])
+    footerText = text(manifestContents['clock-data']['font-path'], int(screenSize[1] / 4), str(brightnessPercentage) + '%', manifestContents['clock-data']['fg-fill-color-bottom'])
     totalTextHeight = int(timeText.get_size()[1] + footerText.get_size()[1])
     timeTextCoords = [int((screenSize[0] - timeText.get_size()[0]) / 2), int((screenSize[1] - totalTextHeight) / 2)]
     footerTextCoords = [int((screenSize[0] - footerText.get_size()[0]) / 2), int(timeTextCoords[1] + timeText.get_size()[1])]
