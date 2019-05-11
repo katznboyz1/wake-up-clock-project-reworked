@@ -1,0 +1,14 @@
+{
+    "meta":{
+    },
+    "clock-data":{
+        "bg-fill-color":[0, 0, 0],
+        "fg-fill-color-top":[255, 255, 255],
+        "fg-fill-color-bottom":[255, 255, 255],
+        "bg-image-path":"./utils/images/mountain-side-view-down-1.jpg",
+        "down-arrow-path":"./utils/icons/down-arrow.png",
+        "up-arrow-path":"./utils/icons/up-arrow.png",
+        "font-path":"./utils/fonts/digital.ttf",
+        "time-date-format":"%hour%:%minute%"
+    }
+}
