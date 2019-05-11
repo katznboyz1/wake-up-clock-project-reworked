@@ -1,21 +1,25 @@
 #import statements
-import pygame, os, json, time
+import pygame, os, json, time, sys
 
-initializeCommands = [
-    'gpio -g mode 18 pwm', #initialize the screen brightness drivers
-    'gpio pwmc 1000', #set the brightness to the max value
-    'sudo sh -c \'echo "0" > /sys/class/backlight/soc\:backlight/brightness\'', #to be honest I dont know what this does I just know that without it the program wont work
-]
+testmode = False
 
-#iterate through all the startup commands and do each of them in the shell
-for each in initializeCommands:
-    os.system(each) 
+#check if the program is running linux, if it isnt then its probably on a development computer, also pitft displays only work for linux
+if (sys.platform == 'linux' and testmode == False):
+    initializeCommands = [
+        'gpio -g mode 18 pwm', #initialize the screen brightness drivers
+        'gpio pwmc 1000', #set the brightness to the max value
+        'sudo sh -c \'echo "0" > /sys/class/backlight/soc\:backlight/brightness\'', #to be honest I dont know what this does I just know that without it the program wont work
+    ]
 
-#overwrite the default environment variables to match the ones you need for the pitft display
-os.putenv('SDL_VIDEODRIVER', 'fbcon')
-os.putenv('SDL_FBDEV', '/dev/fb1')
-os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
-os.putenv('SDL_MOUSEDRV', 'TSLIB')
+    #iterate through all the startup commands and do each of them in the shell
+    for each in initializeCommands:
+        os.system(each) 
+
+    #overwrite the default environment variables to match the ones you need for the pitft display
+    os.putenv('SDL_VIDEODRIVER', 'fbcon')
+    os.putenv('SDL_FBDEV', '/dev/fb1')
+    os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
+    os.putenv('SDL_MOUSEDRV', 'TSLIB')
 
 #make a function that can get the local time
 def localtime() -> dict:
@@ -98,9 +102,12 @@ screenSize = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 screen = pygame.display.set_mode(screenSize, pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
-wantedFPS = 4
-pygame.mouse.set_visible(False)
+wantedFPS = 10
 brightness = 1000
+if (testmode == False):
+    pygame.mouse.set_visible(False)
+else:
+    pygame.mouse.set_visible(True)
 
 #display program info
 print('Clock screen dimensions are: {}x{}'.format(screenSize[0], screenSize[1]))
@@ -113,10 +120,9 @@ while (running):
     
     #blit the background image
     backgroundImage = pygame.image.load(manifestContents['clock-data']['bg-image-path'])
-    if (backgroundImage.get_size()[1] > screenSize[1]):
-        aspectRatio = backgroundImage.get_size()[0] / backgroundImage.get_size()[1]
-        newSize = [int(screenSize[1] * aspectRatio), screenSize[1]]
-        backgroundImage = pygame.transform.scale(backgroundImage, newSize)
+    aspectRatio = backgroundImage.get_size()[0] / backgroundImage.get_size()[1]
+    newSize = [int(screenSize[1] * aspectRatio), screenSize[1]]
+    backgroundImage = pygame.transform.scale(backgroundImage, newSize)
     backgroundImageCoords = [int((screenSize[0] - backgroundImage.get_size()[0]) / 2), 0]
     screen.blit(backgroundImage, backgroundImageCoords)
 
@@ -136,11 +142,13 @@ while (running):
         pass
     else:
         brightness = 1000
-    os.system('gpio -g pwm 18 {}'.format(brightness))
+    if (sys.platform == 'linux'):
+        os.system('gpio -g pwm 18 {}'.format(brightness))
 
     #check if the buttons have been clicked
     #TODO: make the brightness controllable through the manifest file
     if (pygame.mouse.get_pressed()[0]):
+        print ('a')
         mousePos = pygame.mouse.get_pos()
         if (checkIfInsideBounds(mousePos[0], mousePos[1], raiseBrightnessButtonCoords[0], raiseBrightnessButtonCoords[1], int(raiseBrightnessButtonCoords[0] + buttonSize[0]), int(raiseBrightnessButtonCoords[1] + buttonSize[1]))):
             brightness += 100
@@ -160,6 +168,12 @@ while (running):
     footerTextCoords = [int((screenSize[0] - footerText.get_size()[0]) / 2), int(timeTextCoords[1] + timeText.get_size()[1])]
     screen.blit(timeText, timeTextCoords)
     screen.blit(footerText, footerTextCoords)
+
+    #go through the events and see if any buttons have been pressed
+    for event in events:
+        if (event.type == pygame.KEYDOWN):
+            if (event.key == pygame.K_ESCAPE):
+                running = False
 
     #update the display and set the target FPS
     pygame.display.update()
