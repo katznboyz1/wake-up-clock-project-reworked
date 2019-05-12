@@ -157,7 +157,7 @@ while (running):
             brightness -= 100
             if (brightness < 100):
                 brightness = 100
-    brightnessPercentage = int(((brightness - 100) / 1023) * 100)
+    brightnessPercentage = int(((brightness - 100) / 1000) * 100)
     
     #blit the text to the screen
     timeText = text(manifestContents['clock-data']['font-path'], int(screenSize[1] / 2), formatTimeString(manifestContents['clock-data']['time-date-format']), manifestContents['clock-data']['fg-fill-color-top'])
