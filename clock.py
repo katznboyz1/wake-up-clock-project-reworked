@@ -148,7 +148,6 @@ while (running):
     #check if the buttons have been clicked
     #TODO: make the brightness controllable through the manifest file
     if (pygame.mouse.get_pressed()[0]):
-        print ('a')
         mousePos = pygame.mouse.get_pos()
         if (checkIfInsideBounds(mousePos[0], mousePos[1], raiseBrightnessButtonCoords[0], raiseBrightnessButtonCoords[1], int(raiseBrightnessButtonCoords[0] + buttonSize[0]), int(raiseBrightnessButtonCoords[1] + buttonSize[1]))):
             brightness += 100
